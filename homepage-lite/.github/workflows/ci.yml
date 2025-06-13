@@ -1,0 +1,35 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ "main", "master" ] # Adjust if your main branch has a different name
+  pull_request:
+    branches: [ "main", "master" ] # Adjust if your main branch has a different name
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x] # Specify Node.js versions to test against
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm' # Enable caching for npm dependencies
+
+    - name: Install dependencies
+      run: npm ci # Use npm ci for cleaner installs in CI
+
+    - name: Run linters
+      run: npm run lint
+
+    # Placeholder for tests - uncomment when tests are added
+    # - name: Run tests
+    #   run: npm test
