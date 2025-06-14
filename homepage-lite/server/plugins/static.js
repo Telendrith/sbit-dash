@@ -16,6 +16,7 @@ async function staticPlugin(fastify, options) {
     root: publicPath,
     prefix: '/', // Optional: serve from root, or specify a prefix like '/static/'
     decorateReply: true, // Decorates reply with sendFile method
+    index: false, // Explicitly disable serving index.html from root
     setHeaders: (res, pathName, stats) => {
       // Example: Set default cache control for static assets
       // More specific cache control can be set based on file types or paths
@@ -29,5 +30,5 @@ async function staticPlugin(fastify, options) {
 
 export default fp(staticPlugin, {
   name: 'static-assets-plugin',
-  fastify: '4.x',
+  fastify: '^5.0.0',
 });
