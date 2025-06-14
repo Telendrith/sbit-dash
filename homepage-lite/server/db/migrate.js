@@ -37,26 +37,44 @@ try {
 
   if (!scriptShouldFail) {
     const schemaSql = fs.readFileSync(schemaSqlPath, 'utf8');
-    console.log(`[Migrate] Core schema file found. Applying...`);
+    const coreSchemaMigrationId = 'core_schema_v1_initial_setup'; // Descriptive ID for this core schema
+
+    // Ensure the migrations table itself exists by applying schema.sql.
+    // schema.sql is designed to be idempotent (CREATE IF NOT EXISTS).
     try {
       db.exec(schemaSql);
-      console.log('[Migrate] Core schema applied successfully.');
+      console.log('[Migrate] Ensured core tables (like migrations) are present from schema.sql.');
     } catch (sqlErr) {
-      console.error(`[Migrate] Error applying SQL schema: ${sqlErr.message}`);
-      // console.error('[Migrate] SQL Error Stack:', sqlErr.stack); // Optional for more verbose error
-      scriptShouldFail = true; // Set flag on SQL error
+      console.error(`[Migrate] Critical error applying schema.sql (migrations table might be missing or other schema error): ${sqlErr.message}`);
+      scriptShouldFail = true;
+    }
+
+    if (!scriptShouldFail) {
+      const migrationApplied = db.prepare('SELECT 1 FROM migrations WHERE hash = ?').get(coreSchemaMigrationId);
+
+      if (migrationApplied) {
+        console.log(`[Migrate] Core schema migration '${coreSchemaMigrationId}' already applied. Skipping further schema execution for this ID.`);
+      } else {
+        console.log(`[Migrate] Applying core schema migration '${coreSchemaMigrationId}'...`);
+        try {
+          // The schemaSql was already run once to ensure the migrations table.
+          // If schema.sql contains only CREATE IF NOT EXISTS, running it again (as part of the initial db.exec)
+          // is fine. If it had data insertion or destructive alters, this logic would need splitting
+          // schema.sql into "create migrations table" and "apply full schema if not applied".
+          // For now, we assume schema.sql is safe to have been run fully once.
+          // We only need to record this specific migration ID.
+          db.prepare('INSERT INTO migrations (hash, applied_at) VALUES (?, strftime(\'%Y-%m-%d %H:%M:%S\',\'now\'))').run(coreSchemaMigrationId);
+          console.log(`[Migrate] Core schema migration '${coreSchemaMigrationId}' applied successfully and recorded.`);
+        } catch (sqlErr) {
+          console.error(`[Migrate] Error recording core schema migration '${coreSchemaMigrationId}': ${sqlErr.message}`);
+          scriptShouldFail = true;
+        }
+      }
     }
   }
 
-  // Placeholder for future: Read widget model.sql files, calculate hash, update migrations table and user_version
-  // For now, we just apply the core schema.
-  // const currentVersion = db.pragma('user_version', { simple: true });
-  // console.log(`[Migrate] Current user_version: ${currentVersion}`);
-  // const newVersion = 1; // Example
-  // if (currentVersion < newVersion) {
-  //   db.pragma(`user_version = ${newVersion}`);
-  //   console.log(`[Migrate] Database user_version updated to ${newVersion}`);
-  // }
+  // Placeholder for future: Read individual widget model.sql files, calculate hash,
+  // check against migrations table, apply if new, and record.
 
   if (scriptShouldFail) {
     process.exitCode = 1; // Set exit code if any step marked it as failed

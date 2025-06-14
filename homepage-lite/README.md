@@ -16,11 +16,13 @@ Sbit-Dash is built with a modern, efficient stack:
 ## Key Features
 
 -   **Configuration-Driven**: Easily manage your dashboard content (title, services, bookmarks, widgets) through simple YAML files.
+    -   Service and bookmark icons can be specified using names (e.g., from Iconify), with visual rendering planned as a future enhancement (currently displays icon name).
 -   **Server-Side Rendering (SSR)**: Svelte components are rendered on the server for fast initial page loads.
 -   **Extensible Widget System**: Add new functionality through self-contained widget modules.
     -   **Clock Widget**: Displays the current time, configurable for different timezones.
     -   **Quote of the Day Widget**: Fetches and displays a daily quote (with caching).
-    -   **Static Link Grid Widget**: Display a configurable grid of links.
+    -   **Static Link Grid Widget**: Displays a configurable grid of links.
+    -   (Note: `RSS Feed Widget` and `Weather Widget` are also included in the default configuration with placeholder implementations, planned for full functionality.)
 -   **Custom Styling & Behavior**: Inject custom CSS and JavaScript snippets via `custom.css` and `custom.js` files in your configuration directory.
 -   **SQLite Caching**: Built-in caching mechanism for API responses (e.g., for the Quote widget) to reduce external calls and improve speed.
 -   **Health Check Endpoint**: `/healthz` route for monitoring application status and database connectivity.
@@ -63,6 +65,7 @@ Before you begin, ensure you have the following installed:
     ```bash
     npm run migrate
     ```
+    This command also creates the database file (e.g., `sbitdash.sqlite`) if it doesn't already exist, based on your `.env` configuration or defaults.
 
 5.  **Run the Application**:
 
@@ -113,23 +116,32 @@ All configuration files are located in the `config/` directory.
         config:
           timezone: 'America/New_York'
           showSeconds: true
-      - type: 'quote'
-        config: {} # No specific config needed for quote currently
+      - type: 'rss'
+        config:
+          title: 'Svelte Blog'
+          url: 'https://svelte.dev/blog/rss.xml'
+          maxItems: 5
       - type: 'staticLinkGrid'
         config:
           title: 'Dev Links'
-          columns: 2
+          # columns: 2 # Optional: control number of columns
           links:
-            - name: 'MDN'
+            - name: 'MDN' # Simplified example
               url: 'https://developer.mozilla.org/'
-              icon: 'logos:mdn'
+            # Add more links as needed
+      - type: 'weather'
+        config:
+          location: 'Santa Barbara, CA'
+          unit: 'C'
+      - type: 'quote'
+        config: {} # No specific config needed for quote currently
     ```
 
 -   **`bookmarks.yaml`**: Similar structure to `services.yaml`, can be used for additional link organization. Loaded into `appConfig.bookmarks`.
 
 -   **`custom.css` & `custom.js`**:
     -   Content from `custom.css` is injected into a `<style>` tag in the `<head>` of the page.
-    -   Content from `custom.js` is injected into a `<script>` tag at the end of the `<body>`.
+    -   Content from `custom.js` is injected into a `<script>` tag at the end of the `<body>`. The content is treated as JavaScript code directly; it is not parsed as HTML, for security.
 
 ## Widget Development (For Contributors)
 
@@ -152,4 +164,4 @@ The widget system is designed to be modular:
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-<!-- TODO: Create a LICENSE file with MIT License text -->
+<!-- LICENSE file (MIT) is present at the root of the repository. -->

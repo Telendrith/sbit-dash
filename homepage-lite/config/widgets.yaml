@@ -36,3 +36,5 @@ layout:
     config:
       location: 'Santa Barbara, CA'
       unit: 'C' # or 'F'
+  - type: 'quote'
+    config: {} # No specific config needed for quote currently
