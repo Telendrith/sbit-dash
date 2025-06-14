@@ -19,6 +19,7 @@
 
 <svelte:head>
   {@html headContent}
+  <link rel="stylesheet" href="/css/global.css">
   {#if customCss}
     <style id="custom-css-from-config">
       {@html customCss}
@@ -30,14 +31,19 @@
 <div class="container">
   <header>
     <h1>{title}</h1>
+    <div class="header-icons">
+      <!-- Placeholder for icons like settings cog -->
+      <!-- Example: <iconify-icon icon="mdi:cog"></iconify-icon> -->
+    </div>
   </header>
 
   <main>
     {#if services && services.length > 0}
       <section id="services-section">
         <h2>Services & Bookmarks</h2>
+        <div class="responsive-flex-grid">
         {#each services as group}
-          <div class="service-group">
+          <div class="service-group content-card">
             <h3>{group.group}</h3>
             <ul>
               {#each group.items as item}
@@ -53,6 +59,7 @@
             </ul>
           </div>
         {/each}
+        </div>
       </section>
     {/if}
 
@@ -86,20 +93,43 @@ ${customJs}
   .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
-    font-family: sans-serif;
+    padding: 50px; /* Generous padding for larger screens */
+    /* font-family: sans-serif; */ /* Removed to allow global.css to take precedence */
   }
-  header, footer {
+
+  @media (max-width: 768px) {
+    .container {
+      padding: 20px; /* Less padding on mobile */
+    }
+  }
+
+  header {
     text-align: center;
-    margin-bottom: 20px;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid var(--text-color-secondary, #dee2e6); /* Use variable for border color */
+    position: relative;
   }
+
+  footer {
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 40px;
+    border-top: 1px solid var(--text-color-secondary, #dee2e6); /* Use variable for border color */
+    font-size: 0.9em; /* Slightly smaller text */
+    color: var(--text-color-secondary, #6c757d); /* Muted text color */
+  }
+
+  footer p { /* Svelte scopes this to the component's footer p */
+      margin-bottom: 0; /* Remove default bottom margin from p if any */
+  }
+
   .service-group {
     margin-bottom: 20px;
   }
   .service-group h3 {
-    margin-bottom: 10px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 5px;
+    margin-bottom: 15px; /* User requirement: "medium bold", "margin-bottom: 15px" */
+    /* Removed border-bottom and padding-bottom as the card provides separation */
   }
   .service-group ul {
     list-style: none;
@@ -119,5 +149,20 @@ ${customJs}
     margin-right: 0.5em;
     vertical-align: -0.125em; /* Adjusts vertical alignment */
     font-size: 1.2em; /* Slightly larger icons */
+  }
+
+  .header-icons {
+    position: absolute;
+    top: 25px; /* Adjust this value based on visual appeal and header padding */
+    right: 30px; /* More padding from edge */
+    font-size: var(--font-size-lg); /* Slightly smaller than xl for subtle icon */
+  }
+  /* Styling for iconify-icon if used directly */
+  .header-icons iconify-icon { /* Svelte might scope this, or use :global() if needed */
+      color: var(--text-color-secondary);
+      cursor: pointer;
+  }
+  .header-icons iconify-icon:hover {
+      color: var(--accent-color);
   }
 </style>
