@@ -1,0 +1,95 @@
+:root {
+  --font-family-sans-serif: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family-serif: 'Georgia', serif;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2.25rem; /* For main title */
+  --text-color-primary: #212529; /* Dark gray for high contrast */
+  --text-color-secondary: #6c757d; /* Lighter gray for secondary text */
+  --accent-color: #007bff; /* Example blue */
+  --accent-color-soft: #e7f3ff; /* Light blue for hover */
+  --background-color-light: #f8f9fa; /* Light gray for body */
+}
+
+body {
+  font-family: var(--font-family-sans-serif);
+  font-size: var(--font-size-base);
+  color: var(--text-color-primary);
+  /* Use a subtle gradient for the background */
+  background-image: linear-gradient(to bottom, #f5f7fa, #e9ecef);
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* So gradient doesn't scroll with content */
+  min-height: 100vh; /* Ensure gradient covers full viewport height */
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-sans-serif);
+  color: var(--text-color-primary);
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 500; /* Or a bit bolder if needed */
+}
+
+h1 { font-size: var(--font-size-2xl); }
+h2 { font-size: var(--font-size-xl); }
+h3 { font-size: var(--font-size-lg); }
+
+a {
+  color: var(--accent-color);
+  text-decoration: none; /* Optional: remove underline */
+}
+
+a:hover {
+  text-decoration: underline; /* Optional: add underline on hover */
+}
+
+.font-serif {
+  font-family: var(--font-family-serif);
+}
+
+.content-card {
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); /* Softer shadow */
+  border-radius: 8px;
+  padding: 20px; /* Default internal padding for cards */
+  margin-bottom: 20px; /* Default spacing between cards */
+}
+
+/* Basic responsive stacking for sections within main */
+main > section {
+  margin-bottom: 32px; /* As per user request for vertical space between sections */
+}
+
+/* Example for a generic flex container that can be used for card layouts */
+.responsive-flex-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* Spacing between items in the grid */
+}
+
+.responsive-flex-grid > * { /* Items within the flex grid */
+  flex-basis: calc(33.333% - 20px); /* Default for 3 columns, adjust gap */
+  min-width: 280px; /* Minimum width before breaking */
+  flex-grow: 1;
+}
+
+@media (max-width: 992px) { /* Tablet and smaller */
+  .responsive-flex-grid > * {
+    flex-basis: calc(50% - 10px); /* 2 columns, adjust gap */
+  }
+}
+
+@media (max-width: 768px) { /* Mobile */
+  .responsive-flex-grid {
+    flex-direction: column; /* Stack items vertically */
+  }
+  .responsive-flex-grid > * {
+    flex-basis: 100%; /* Full width for stacked items */
+    margin-bottom: 20px; /* Spacing when stacked */
+  }
+  main > section {
+    margin-bottom: 20px; /* Slightly reduce section spacing on mobile */
+  }
+}
