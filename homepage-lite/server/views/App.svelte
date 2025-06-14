@@ -4,7 +4,7 @@
   export let services = [];
   export let customCss = '';
   export let customJs = '';
-  export let widgetsConfig = { layout: [] }; // From widgets.yaml
+  export let widgetsHtml = ''; // HTML for all widgets, pre-rendered
 
   // This will hold the dynamically generated head content
   let headContent = '';
@@ -59,17 +59,10 @@
     <!-- Placeholder for widgets, to be implemented in Step 5 -->
     <section id="widgets-section">
         <h2>Widgets</h2>
-        {#if widgetsConfig && widgetsConfig.layout && widgetsConfig.layout.length > 0}
-            {#each widgetsConfig.layout as widgetInstance}
-                <div class="widget-placeholder" data-widget-type="{widgetInstance.type}">
-                    Widget: {widgetInstance.type}
-                    {#if widgetInstance.config}
-                        (Config: {JSON.stringify(widgetInstance.config)})
-                    {/if}
-                </div>
-            {/each}
-        {#else}
-            <p>No widgets configured yet.</p>
+        {#if widgetsHtml}
+            {@html widgetsHtml}
+        {:else}
+            <p>No widgets to display or error loading widgets.</p>
         {/if}
     </section>
 
