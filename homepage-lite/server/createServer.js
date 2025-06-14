@@ -19,14 +19,18 @@ export default async function createServer(opts = {}) {
     disableRequestLogging: process.env.NODE_ENV === 'production',
   });
 
-  // Register core plugins
-  server.register(sqlitePlugin, { dbFile: opts.dbFile });
-  server.register(staticPlugin);
+  // Register appConfig first as other routes/plugins might depend on it
   server.register(appConfigPlugin);
 
-  // Register core routes
-  server.register(healthzRoute, { prefix: '/healthz' });
+  // Register rootRoute early to claim the '/' path
   server.register(rootRoute);
+
+  // Register other core plugins
+  server.register(sqlitePlugin, { dbFile: opts.dbFile });
+  server.register(staticPlugin); // Static plugin after explicit root route
+
+  // Register core routes
+  server.register(healthzRoute); // Prefix removed, path is defined in the plugin
 
   // Placeholder for widget loading (already present)
   // server.decorate('widgets', {}); // This was already here, ensure it's useful or remove if widget registration below handles this concept.
