@@ -2,7 +2,9 @@
 import Fastify from 'fastify';
 import sqlitePlugin from './plugins/sqlite.js';
 import staticPlugin from './plugins/static.js';
+import appConfigPlugin from './plugins/appConfig.js';
 import healthzRoute from './routes/healthz.js'; // To be added in a later step
+import rootRoute from './routes/root.js';
 
 export default async function createServer(opts = {}) {
   const server = Fastify({
@@ -13,9 +15,11 @@ export default async function createServer(opts = {}) {
   // Register core plugins
   server.register(sqlitePlugin, { dbFile: opts.dbFile });
   server.register(staticPlugin);
+  server.register(appConfigPlugin);
 
   // Register core routes
   server.register(healthzRoute, { prefix: '/healthz' });
+  server.register(rootRoute);
 
   // Placeholder for widget loading
   server.decorate('widgets', {});

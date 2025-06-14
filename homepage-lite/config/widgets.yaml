@@ -1,0 +1,38 @@
+# homepage-lite/config/widgets.yaml
+
+# Optional global layout settings for widgets (e.g., 'columns', 'grid')
+# For now, we'll assume a simple top-to-bottom flow or let App.svelte handle it.
+# globalLayout:
+#   type: 'columns'
+#   columns: 3 # Example: 3 columns
+
+# The 'layout' key will contain the list of widgets to be rendered.
+# Each item in the list is a widget instance.
+layout:
+  - type: 'clock' # 'clock' is a reference to a Svelte component we'll create later
+    # Widget-specific configuration can go into a 'config' block
+    config:
+      timezone: 'America/New_York'
+      showSeconds: true
+
+  - type: 'rss'
+    config:
+      title: 'Svelte Blog'
+      url: 'https://svelte.dev/blog/rss.xml'
+      maxItems: 5
+
+  - type: 'staticLinkGrid' # Example for a different kind of widget
+    config:
+      title: 'Quick Dev Links'
+      links:
+        - name: 'MDN JavaScript'
+          url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript'
+        - name: 'Node.js Docs'
+          url: 'https://nodejs.org/en/docs/'
+        - name: 'Svelte Docs'
+          url: 'https://svelte.dev/docs'
+
+  - type: 'weather' # Another placeholder for a future widget
+    config:
+      location: 'Santa Barbara, CA'
+      unit: 'C' # or 'F'
