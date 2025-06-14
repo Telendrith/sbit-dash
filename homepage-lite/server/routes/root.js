@@ -18,6 +18,6 @@ async function rootRoute(fastify, options) {
 
 export default fp(rootRoute, {
   name: 'root-route',
-  fastify: '4.x',
+  fastify: '^5.0.0',
   dependencies: ['app-config'], // Ensure appConfig is loaded
 });

@@ -39,7 +39,11 @@ async function gracefulShutdown(signal) {
         server.db.close(); // better-sqlite3 close is synchronous
         effectiveLog.info('Database connection closed successfully.');
       } catch (dbErr) {
-        effectiveLog.error({ err: dbErr } if (dbErr instanceof Error) else dbErr, 'Error closing database connection.');
+          if (dbErr instanceof Error) {
+            effectiveLog.error({ err: dbErr }, 'Error closing database connection.');
+          } else {
+            effectiveLog.error(`Error closing database connection: ${String(dbErr)}`);
+          }
       }
     } else {
       effectiveLog.warn('Database (server.db) or db.close method not available for shutdown cleanup.');
@@ -57,7 +61,11 @@ async function gracefulShutdown(signal) {
     effectiveLog.info('Graceful shutdown completed.');
     process.exit(0); // Normal exit after successful shutdown
   } catch (err) {
-    effectiveLog.error({ err } if (err instanceof Error) else err, 'Error during graceful shutdown sequence.');
+    if (err instanceof Error) {
+      effectiveLog.error({ err: err }, 'Error during graceful shutdown sequence.');
+    } else {
+      effectiveLog.error(`Error during graceful shutdown sequence: ${String(err)}`);
+    }
     clearTimeout(shutdownTimer);
     process.exit(1); // Exit with error code
   }
@@ -145,7 +153,11 @@ async function start() {
     // Fastify logs its own startup message.
   } catch (err) {
     const logError = server && server.log ? server.log.error.bind(server.log) : console.error;
-    logError({ err } if (err instanceof Error) else err, 'Error during server startup or listening.');
+    if (err instanceof Error) {
+      logError({ err: err }, 'Error during server startup or listening.');
+    } else {
+      logError(`Error during server startup or listening: ${String(err)}`);
+    }
     process.exit(1); // Exit if server fails to start
   }
 

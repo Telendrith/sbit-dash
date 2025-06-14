@@ -39,6 +39,6 @@ async function healthzRoute(fastify, options) {
 
 export default fp(healthzRoute, {
   name: 'healthz-route',
-  fastify: '4.x',
+  fastify: '^5.0.0',
   dependencies: ['sqlite-plugin'], // Ensure DB plugin is loaded
 });

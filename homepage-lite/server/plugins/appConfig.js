@@ -10,5 +10,5 @@ async function appConfigPlugin(fastify, options) {
 
 export default fp(appConfigPlugin, {
   name: 'app-config',
-  fastify: '4.x',
+  fastify: '^5.0.0',
 });

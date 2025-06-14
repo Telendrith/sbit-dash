@@ -8,7 +8,7 @@ Sbit-Dash is a speed-obsessed, self-hosted, and configuration-driven dashboard a
 
 Sbit-Dash is built with a modern, efficient stack:
 
--   **Runtime**: Node.js (v20.x - v22.x ESM)
+-   **Runtime**: Node.js (v24.x ESM)
 -   **Web Framework**: Fastify (v4.x)
 -   **UI Framework**: Svelte 5 (Server-Side Rendered)
 -   **Database**: better-sqlite3 (for caching and simple data storage)
@@ -30,7 +30,7 @@ Sbit-Dash is built with a modern, efficient stack:
 
 Before you begin, ensure you have the following installed:
 
--   Node.js (v20.x or v22.x is recommended)
+-   Node.js (v24.x is recommended)
 -   npm (comes with Node.js)
 -   Git (for cloning the repository)
 

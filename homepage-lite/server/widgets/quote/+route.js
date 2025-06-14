@@ -79,6 +79,6 @@ async function quoteWidgetRoutes(fastify, options) {
 
 export default fp(quoteWidgetRoutes, {
   name: 'quote-widget-routes',
-  fastify: '4.x',
+  fastify: '^5.0.0',
   dependencies: ['sqlite-plugin', 'app-config'], // Ensure DB and config are ready
 });

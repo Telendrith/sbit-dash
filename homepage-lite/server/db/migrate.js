@@ -17,6 +17,7 @@ const dbFilePath = path.resolve(projectRoot, dbFile);
 console.log(`[Migrate] Attempting to connect to database: ${dbFilePath}`);
 
 let db; // Keep db declaration outside try to be accessible in finally
+let scriptShouldFail = false; // Flag to track if any step failed
 
 try {
   db = new Database(dbFilePath);
@@ -31,21 +32,20 @@ try {
 
   if (!fs.existsSync(schemaSqlPath)) {
     console.error(`[Migrate] Error: Schema file not found at ${schemaSqlPath}`);
-    process.exitCode = 1;
-    return; // Exit the try block, proceed to finally
+    scriptShouldFail = true;
   }
 
-  const schemaSql = fs.readFileSync(schemaSqlPath, 'utf8');
-  console.log(`[Migrate] Core schema file found. Applying...`);
-
-  try {
-    db.exec(schemaSql);
-    console.log('[Migrate] Core schema applied successfully.');
-  } catch (sqlErr) {
-    console.error(`[Migrate] Error applying SQL schema: ${sqlErr.message}`);
-    // console.error('[Migrate] SQL Error Stack:', sqlErr.stack); // Optional for more verbose error
-    process.exitCode = 1;
-    return; // Exit the try block, proceed to finally
+  if (!scriptShouldFail) {
+    const schemaSql = fs.readFileSync(schemaSqlPath, 'utf8');
+    console.log(`[Migrate] Core schema file found. Applying...`);
+    try {
+      db.exec(schemaSql);
+      console.log('[Migrate] Core schema applied successfully.');
+    } catch (sqlErr) {
+      console.error(`[Migrate] Error applying SQL schema: ${sqlErr.message}`);
+      // console.error('[Migrate] SQL Error Stack:', sqlErr.stack); // Optional for more verbose error
+      scriptShouldFail = true; // Set flag on SQL error
+    }
   }
 
   // Placeholder for future: Read widget model.sql files, calculate hash, update migrations table and user_version
@@ -58,15 +58,22 @@ try {
   //   console.log(`[Migrate] Database user_version updated to ${newVersion}`);
   // }
 
+  if (scriptShouldFail) {
+    process.exitCode = 1; // Set exit code if any step marked it as failed
+  }
+
 } catch (err) { // This is the outer catch for general errors (e.g., DB connection)
   console.error(`[Migrate] Error during migration process: ${err.message}`);
   // console.error(err.stack); // Optional
-  process.exitCode = 1;
+  process.exitCode = 1; // Indicate failure
 } finally {
   if (db && db.open) {
     db.close();
     console.log('[Migrate] Database connection closed.');
   }
   // Node.js will exit with process.exitCode if set (defaults to 0 if not set)
-  // No explicit process.exit() here ensures the finally block completes.
+  // or if it was set by an explicit process.exit() call earlier (like in the signal handlers)
+  if (process.exitCode && process.exitCode !== 0) {
+    process.exit(process.exitCode);
+  }
 }

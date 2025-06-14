@@ -40,5 +40,5 @@ async function sqlitePlugin(fastify, options) {
 
 export default fp(sqlitePlugin, {
   name: 'sqlite-plugin',
-  fastify: '4.x', // Specify Fastify version compatibility
+  fastify: '^5.0.0', // Specify Fastify version compatibility
 });
