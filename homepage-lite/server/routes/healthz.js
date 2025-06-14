@@ -2,7 +2,8 @@
 import fp from 'fastify-plugin';
 
 async function healthzRoute(fastify, options) {
-  fastify.get('/', async (request, reply) => {
+  // Define the full path explicitly here
+  fastify.get('/healthz', async (request, reply) => {
     let dbStatus = 'ok';
     let dbCheckError = null;
     try {

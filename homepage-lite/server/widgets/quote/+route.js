@@ -24,7 +24,8 @@ async function fetchQuoteFromAPI(fastify) {
 }
 
 async function quoteWidgetRoutes(fastify, options) {
-  fastify.get('/', async (request, reply) => {
+  // Define the full path explicitly here, matching the prefix previously applied
+  fastify.get('/api/widgets/quote', async (request, reply) => {
     // 1. Check cache
     try {
       // Ensure db is available on fastify instance
