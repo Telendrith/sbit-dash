@@ -1,0 +1,7 @@
+# homepage-lite/config/bookmarks.yaml
+# This file is also loaded. You can use it instead of/alongside services.yaml
+# Example:
+# - group: 'Personal Bookmarks'
+#   items:
+#     - name: 'My Blog'
+#       url: 'https://example.com/blog'

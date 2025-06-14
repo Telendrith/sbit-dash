@@ -1,0 +1,33 @@
+# homepage-lite/config/services.yaml
+# This file can be used for services, bookmarks, or general links.
+# The loader currently loads this into `fastify.appConfig.services`.
+
+- group: 'Productivity Suite'
+  items:
+    - name: 'Google Drive'
+      url: 'https://drive.google.com'
+      icon: 'logos:google-drive' # Example: using Iconify icon names (actual rendering later)
+    - name: 'Notion Workspace'
+      url: 'https://notion.so'
+      icon: 'simple-icons:notion'
+    - name: 'GitHub Repositories'
+      url: 'https://github.com?tab=repositories'
+      icon: 'mdi:github'
+
+- group: 'News & Reading'
+  items:
+    - name: 'Hacker News'
+      url: 'https://news.ycombinator.com'
+      icon: 'simple-icons:hackernews'
+    - name: 'Reddit - r/selfhosted'
+      url: 'https://www.reddit.com/r/selfhosted/'
+      icon: 'mdi:reddit' # Example icon
+
+- group: 'Developer Tools'
+  items:
+    - name: 'MDN Web Docs'
+      url: 'https://developer.mozilla.org/'
+      icon: 'simple-icons:mdnwebdocs'
+    - name: 'Can I use...'
+      url: 'https://caniuse.com/'
+      # No icon specified here, to test default handling
