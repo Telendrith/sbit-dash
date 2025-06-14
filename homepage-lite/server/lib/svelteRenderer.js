@@ -1,5 +1,6 @@
 // homepage-lite/server/lib/svelteRenderer.js
 import { compile } from 'svelte/compiler';
+import { render as svelteRender } from 'svelte/server';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url'; // Added pathToFileURL
@@ -18,23 +19,29 @@ if (!fs.existsSync(tempSvelteDirRoot)) {
 }
 
 // Renamed and modified: Renders the main App.svelte shell
-export async function renderAppShell(props = {}) {
+export async function renderAppShell(props = {}, fastifyInstance) {
   try {
     const svelteCode = fs.readFileSync(appComponentPath, 'utf8');
-    const { js } = compile(svelteCode, { generate: 'ssr', format: 'esm', name: 'AppShell' }); // Added name
+    const { js } = compile(svelteCode, { generate: 'ssr', css: 'injected' });
 
     const tempFilePath = path.join(tempSvelteDirRoot, `AppShell_${Date.now()}.js`);
 
     fs.writeFileSync(tempFilePath, js.code);
     const fileUrl = pathToFileURL(tempFilePath).href;
 
-    const { default: App } = await import(fileUrl);
-    fs.unlinkSync(tempFilePath);
+    const { default: AppComponentDefinition } = await import(fileUrl);
+    fs.unlinkSync(tempFilePath); // Moved unlink earlier
 
-    const { html, head } = App.render(props); // Props will include widgetsHtml
+    const { html, head } = svelteRender(AppComponentDefinition, { props: props });
     return { html, head };
   } catch (err) {
-    console.error('[SvelteRenderer] Error rendering App.svelte shell:', err);
+    const logPayload = { err, propsKeys: Object.keys(props || {}) };
+    const errorMsg = '[SvelteRenderer] Error rendering App.svelte shell:';
+    if (fastifyInstance && fastifyInstance.log) {
+      fastifyInstance.log.error(logPayload, errorMsg);
+    } else {
+      console.error(errorMsg, err, logPayload);
+    }
     throw err;
   }
 }
@@ -93,26 +100,27 @@ export async function renderWidget(widgetType, widgetConfig, fastifyInstance) {
   try {
     const widgetSvelteCode = fs.readFileSync(widgetComponentPath, 'utf8');
     // Unique name for the Svelte component class to avoid conflicts if multiple widgets of same type (though SSR usually new instance)
-    const componentName = `Widget_${widgetType.replace(/[^a-zA-Z0-9_]/g, '_')}`;
-    const { js } = compile(widgetSvelteCode, { generate: 'ssr', format: 'esm', name: componentName });
+    // const componentName = `Widget_${widgetType.replace(/[^a-zA-Z0-9_]/g, '_')}`; // Name option removed
+    const { js } = compile(widgetSvelteCode, { generate: 'ssr', css: 'injected' });
 
-    const tempFilePath = path.join(tempSvelteDirRoot, `${componentName}_${Date.now()}.js`);
+    const tempFilePath = path.join(tempSvelteDirRoot, `Widget_${widgetType.replace(/[^a-zA-Z0-9_]/g, '_')}_${Date.now()}.js`);
 
     fs.writeFileSync(tempFilePath, js.code);
     const fileUrl = pathToFileURL(tempFilePath).href;
 
-    const { default: WidgetComponent } = await import(fileUrl);
-    fs.unlinkSync(tempFilePath);
+    const { default: WidgetComponentDefinition } = await import(fileUrl);
+    fs.unlinkSync(tempFilePath); // Moved unlink earlier
 
-    const props = { config: widgetConfig, data: widgetData };
-    const { html, head, css } = WidgetComponent.render(props);
-    return { html, head: head || '', css: css && css.code ? css.code : '' };
+    const widgetSsrProps = { config: widgetConfig, data: widgetData };
+    const { html, head } = svelteRender(WidgetComponentDefinition, { props: widgetSsrProps });
+    return { html, head: head || '' }; // CSS is now part of head
   } catch (err) {
     const errorMsg = `[SvelteRenderer] Error rendering widget ${widgetType}:`;
+    const logPayload = { err, widgetType, widgetConfig };
     if (fastifyInstance && fastifyInstance.log) {
-        fastifyInstance.log.error({ err }, errorMsg);
+      fastifyInstance.log.error(logPayload, errorMsg);
     } else {
-        console.error(errorMsg, err);
+      console.error(errorMsg, err, logPayload);
     }
     return { html: `<div class="widget-error">Error rendering widget "${widgetType}". Check server logs.</div>`, head: '', css: '' };
   }
@@ -122,7 +130,6 @@ export async function renderWidget(widgetType, widgetConfig, fastifyInstance) {
 export async function renderDashboardPage(appConfig, fastifyInstance) {
   let widgetsHtml = '';
   let widgetsHead = '';
-  // let widgetsCss = ''; // CSS handling strategy might need refinement
 
   if (appConfig.widgets && appConfig.widgets.layout) {
     for (const widgetInstance of appConfig.widgets.layout) {
@@ -131,7 +138,6 @@ export async function renderDashboardPage(appConfig, fastifyInstance) {
         const renderedWidget = await renderWidget(type, config, fastifyInstance);
         widgetsHtml += renderedWidget.html;
         if (renderedWidget.head) widgetsHead += renderedWidget.head;
-        // if (renderedWidget.css) widgetsCss += renderedWidget.css;
       }
     }
   }
@@ -145,7 +151,7 @@ export async function renderDashboardPage(appConfig, fastifyInstance) {
     // additionalHeadContent: widgetsHead, // App.svelte would need to handle this if passed
   };
 
-  const { html: appShellHtml, head: appShellHead } = await renderAppShell(appShellProps);
+  const { html: appShellHtml, head: appShellHead } = await renderAppShell(appShellProps, fastifyInstance);
 
   const finalHead = (appShellHead || '') + (widgetsHead || ''); // Combine App shell head and widgets head
 

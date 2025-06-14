@@ -8,14 +8,24 @@ async function healthzRoute(fastify, options) {
     let dbCheckError = null;
     try {
       // Perform a simple, non-intrusive check on the database
-      const result = fastify.db.pragma('quick_check');
-      if (result !== 'ok') {
+      const result = fastify.db.pragma('quick_check'); // This typically returns a string 'ok' or throws.
+      // If quick_check returns something other than 'ok' but doesn't throw (unusual for better-sqlite3 pragma),
+      // we'll capture it. The main path for errors is the catch block.
+      if (Array.isArray(result) && result.length > 0 && result[0].hasOwnProperty('quick_check')) {
+        // This handles cases where pragma returns an array of objects like [{ quick_check: 'ok' }]
+        if (result[0].quick_check !== 'ok') {
+          dbStatus = `error: ${result[0].quick_check}`;
+          dbCheckError = result[0].quick_check;
+        }
+      } else if (typeof result === 'string' && result !== 'ok') {
         dbStatus = `error: ${result}`;
+        dbCheckError = result;
       }
+      // If result is 'ok', dbStatus remains 'ok' and dbCheckError remains null.
     } catch (err) {
       fastify.log.error(`Health check DB error: ${err.message}`);
-      dbStatus = 'error';
-      dbCheckError = err.message;
+      dbStatus = 'error'; // General error status
+      dbCheckError = err.message; // Specific error message
     }
 
     const healthInfo = {
