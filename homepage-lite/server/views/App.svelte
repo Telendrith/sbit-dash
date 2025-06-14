@@ -74,9 +74,11 @@
 </div>
 
 {#if customJs}
-  <script id="custom-js-from-config" bind:textContent={`//<![CDATA[
+  <script id="custom-js-from-config">
+    {@html `//<![CDATA[
 ${customJs}
-//]]>`}></script>
+//]]>`}
+  </script>
 {/if}
 
 <style>
