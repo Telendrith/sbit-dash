@@ -24,6 +24,7 @@
       {@html customCss}
     </style>
   {/if}
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" integrity="sha256-3tdIwL3X2IeEmjYGeLpqJ9S8E0J52L1W3fR2j9f7Qv4=" crossorigin="anonymous"></script>
 </svelte:head>
 
 <div class="container">
@@ -43,8 +44,7 @@
                 <li>
                   <a href={item.url} target="_blank" rel="noopener noreferrer">
                     {#if item.icon}
-                      <!-- Basic icon placeholder, actual icons later -->
-                      <span class="icon">{item.icon}</span>
+                      <iconify-icon icon="{item.icon}" class="service-icon"></iconify-icon>
                     {/if}
                     {item.name}
                   </a>
@@ -74,11 +74,9 @@
 </div>
 
 {#if customJs}
-  <script id="custom-js-from-config">
-    {@html `//<![CDATA[
+  <script id="custom-js-from-config" bind:textContent={`//<![CDATA[
 ${customJs}
-//]]>`}
-  </script>
+//]]>`}></script>
 {/if}
 
 <style>
@@ -114,15 +112,10 @@ ${customJs}
     margin-bottom: 10px;
     background-color: #f9f9f9;
   }
-  .icon { /* Basic placeholder style */
-    display: inline-block;
-    width: 1em;
-    height: 1em;
-    margin-right: 0.25em;
-    background-color: #eee; /* Placeholder visual */
-    border-radius: 3px;
-    font-size: 0.8em;
-    text-align: center;
-    line-height: 1em;
+  /* Removed old .icon style */
+  .service-icon {
+    margin-right: 0.5em;
+    vertical-align: -0.125em; /* Adjusts vertical alignment */
+    font-size: 1.2em; /* Slightly larger icons */
   }
 </style>
