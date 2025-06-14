@@ -43,20 +43,24 @@
         <h2>Services & Bookmarks</h2>
         <div class="responsive-flex-grid">
         {#each services as group}
-          <div class="service-group content-card">
+          <div class="service-group content-card" class:empty-group={group.items.length === 0}>
             <h3>{group.group}</h3>
-            <ul>
-              {#each group.items as item}
-                <li>
-                  <a href={item.url} target="_blank" rel="noopener noreferrer">
-                    {#if item.icon}
-                      <iconify-icon icon="{item.icon}" class="service-icon"></iconify-icon>
-                    {/if}
-                    {item.name}
-                  </a>
-                </li>
-              {/each}
-            </ul>
+            {#if group.items.length > 0}
+              <ul>
+                {#each group.items as item}
+                  <li>
+                    <a href={item.url} target="_blank" rel="noopener noreferrer">
+                      {#if item.icon}
+                        <iconify-icon icon="{item.icon}" class="service-icon"></iconify-icon>
+                      {/if}
+                      {item.name}
+                    </a>
+                  </li>
+                {/each}
+              </ul>
+            {:else}
+              <p class="empty-group-message">No bookmarks in this group yet.</p>
+            {/if}
           </div>
         {/each}
         </div>
@@ -67,7 +71,9 @@
     <section id="widgets-section">
         <h2>Widgets</h2>
         {#if widgetsHtml}
+          <div class="responsive-flex-grid">
             {@html widgetsHtml}
+          </div>
         {:else}
             <p>No widgets to display or error loading widgets.</p>
         {/if}
@@ -135,8 +141,24 @@ ${customJs}
     list-style: none;
     padding: 0;
   }
-  .service-group li {
-    margin-bottom: 5px;
+  .service-group li { /* This contains the <a> tag, so its margin might need adjustment or removal */
+    margin-bottom: 0; /* Let the <a> tag's margin handle spacing */
+  }
+  .service-group ul li a {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    margin-bottom: 4px; /* Space between items */
+    border-radius: 6px;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    color: var(--text-color-primary);
+  }
+  .service-group ul li a:hover {
+    background-color: var(--accent-color-soft);
+    color: var(--accent-color);
+  }
+  .service-group ul li a:hover .service-icon { /* Scope to ensure icon within hovered 'a' is affected */
+    transform: scale(1.15);
   }
   .widget-placeholder {
     border: 1px dashed #ccc;
@@ -146,9 +168,11 @@ ${customJs}
   }
   /* Removed old .icon style */
   .service-icon {
-    margin-right: 0.5em;
-    vertical-align: -0.125em; /* Adjusts vertical alignment */
-    font-size: 1.2em; /* Slightly larger icons */
+    margin-right: 0.75em; /* Slightly more space */
+    /* vertical-align is not needed for flex items */
+    font-size: 1.2em; /* Keep as is or adjust if needed */
+    transition: transform 0.2s ease-in-out;
+    flex-shrink: 0; /* Prevent icon from shrinking if text is long */
   }
 
   .header-icons {
@@ -164,5 +188,21 @@ ${customJs}
   }
   .header-icons iconify-icon:hover {
       color: var(--accent-color);
+  }
+
+  .empty-group-message {
+    color: var(--text-color-secondary);
+    font-style: italic;
+    text-align: center;
+    padding: 20px 0; /* Give it some vertical space */
+  }
+
+  .service-group.empty-group {
+    background-color: var(--background-color-light, #f8f9fa); /* Use a slightly off-white/gray background */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Lighter shadow or none */
+  }
+
+  .service-group.empty-group h3 { /* Ensure the title in an empty group is also muted */
+      color: var(--text-color-secondary);
   }
 </style>

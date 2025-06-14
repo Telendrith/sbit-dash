@@ -8,6 +8,7 @@
   --text-color-primary: #212529; /* Dark gray for high contrast */
   --text-color-secondary: #6c757d; /* Lighter gray for secondary text */
   --accent-color: #007bff; /* Example blue */
+  --accent-color-soft: #e7f3ff; /* Light blue for hover */
   --background-color-light: #f8f9fa; /* Light gray for body */
 }
 

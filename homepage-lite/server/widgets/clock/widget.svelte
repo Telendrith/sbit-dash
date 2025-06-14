@@ -27,6 +27,22 @@
         options.second = 'numeric';
       }
       currentTime = now.toLocaleString(effectiveConfig.locale, options);
+
+      if (effectiveConfig.showSeconds) {
+        // Make the last colon blink if it's part of seconds
+        let parts = currentTime.split(':');
+        if (parts.length > 1) { // Check if there's at least one colon
+            const lastColonIndex = currentTime.lastIndexOf(':');
+            // Ensure it's the colon separating minutes and seconds, not hours and minutes if no seconds
+            // This check works if locale format is like H:M:S or H:M.
+            // More robust check might be needed for locales with different separators or orders.
+            if (lastColonIndex !== -1 && parts.length > 2) {
+              currentTime = currentTime.substring(0, lastColonIndex) +
+                            '<span class="blinking-colon">:</span>' +
+                            currentTime.substring(lastColonIndex + 1);
+            }
+        }
+      }
     } catch (e) {
       console.error("Error formatting time for clock widget:", e);
       currentTime = "Error";
@@ -62,10 +78,10 @@
   }
 </script>
 
-<div class="clock-widget">
+<div class="clock-widget content-card">
   <h3>Clock</h3>
   <div class="time-display">
-    {currentTime}
+    {@html currentTime}
   </div>
   {#if effectiveConfig.timezone}
     <div class="timezone-info">
@@ -76,26 +92,28 @@
 
 <style>
   .clock-widget {
-    padding: 15px;
-    border: 1px solid #eee;
-    border-radius: 5px;
-    background-color: #f9f9f9;
     text-align: center;
+    /* Properties like padding, border, border-radius, background-color
+       are now expected to come from the .content-card class */
   }
-  .clock-widget h3 {
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 1.2em;
-    color: #333;
-  }
+  /* .clock-widget h3 rule removed to rely on global h3 styles */
   .time-display {
-    font-size: 2em;
-    font-weight: bold;
-    color: #0056b3; /* A nice blue for the time */
-    margin-bottom: 10px;
+    font-size: calc(var(--font-size-base) * 2.5); /* Approx 2.5x base text */
+    font-weight: bold; /* Keep bold */
+    color: var(--text-color-primary); /* Use theme color */
+    margin-bottom: 10px; /* Keep or adjust as needed */
+    line-height: 1.2; /* Ensure tight line height for large text */
   }
   .timezone-info {
-    font-size: 0.8em;
-    color: #777;
+    font-size: 0.85em; /* As per plan */
+    color: var(--text-color-secondary); /* Use theme color */
+    margin-top: 5px; /* As per plan */
+  }
+
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+  .blinking-colon {
+    animation: blink 1s step-start infinite;
   }
 </style>
